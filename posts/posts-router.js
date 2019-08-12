@@ -25,7 +25,6 @@ router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params
         const post = await Posts.findById(id)
-        console.log("post", post)
         if(post.length < 1) {
             throw {
                 errorCode: 404,
@@ -118,7 +117,7 @@ router.post('/:id/comments', async (req, res) => {
         }
         
         const newComment = await Posts.insertComment(comment)
-        res.status(201).json(newComment)
+        res.status(200).json(newComment)
 
     } catch (error) {
         if (!error.errorCode) {
@@ -159,10 +158,40 @@ router.delete('/:id', async (req, res) => {
     }
 })
 
-
 // PUT /api/posts/:id
 // Updates the post with the specified ID using data from the request body. Returns the modified document, not the original
+router.put('/:id', async (req, res) => {
+    const { title, contents } = req.body
+    const { id } = req.params
+    try {
+        if(!title || !contents) {
+            throw {
+                errorCode: 400,
+                message: "Please provide title and contents for the post."
+            }
+        }
+        const postToUpdate = await Posts.findById(id)
+        if(postToUpdate.length == 0) {
+            throw {
+                errorCode: 404,
+                message: "The post with the specified ID does not exist."
+            }
+        }
+        await Posts.update(id, req.body)
+        const newUpdatedPost = await Posts.findById(id)
 
+        res.status(201).json(newUpdatedPost)
+    } catch (error) {
+        if (!error.errorCode) {
+            res.status(500).json({
+                errorMessage: "The post information could not be modified."
+            })
+        }
+        res.status(error.errorCode).json({
+            errorMessage: error.message
+        })
+    }
+})
 
 
 
