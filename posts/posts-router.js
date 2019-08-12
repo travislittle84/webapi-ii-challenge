@@ -117,7 +117,7 @@ router.post('/:id/comments', async (req, res) => {
         }
         
         const newComment = await Posts.insertComment(comment)
-        res.status(200).json(newComment)
+        res.status(201).json(newComment)
 
     } catch (error) {
         if (!error.errorCode) {
